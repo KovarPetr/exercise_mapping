@@ -22,10 +22,8 @@ def find_block(text, sa, p):
     start = [0, len(sa)]
     end = [0, len(sa)]
     while start[0] != start[1] and end[0] != end[1]:
-        print(start, end)
         start_mid = floor((start[0] + start[1]) / 2)
         end_mid = floor((end[0] + end[1]) / 2)
-        print(start_mid, end_mid)
         if text[sa[start_mid]:sa[start_mid]+len(p)] < p:
             start[0] = start_mid + 1
         else:
@@ -36,8 +34,47 @@ def find_block(text, sa, p):
             end[1] = end_mid
     return[start[0], end[1]]
 
-print(suffix_array("CGTACAGTAGTA$"))
-print("CGTACAGTAGTA$"[12])
-print(find_block("CGTACAGTAGTA$",suffix_array("CGTACAGTAGTA$"), "GTA"))
 
 
+
+def bwt(text, sa):
+    out = ""
+    for indx in sa:
+        if indx == 0:
+            out += text[-1]
+        else:
+            out += text[indx - 1]
+    return out
+
+def first_occurrence(letters):
+    out_dict = {}
+    let_sort = ''.join(sorted(letters))
+    for letter_indx in range(len(let_sort)):
+        if let_sort[letter_indx] not in out_dict.keys():
+            out_dict[let_sort[letter_indx]] = letter_indx
+    return out_dict
+
+def inverse_bwt(bwt):
+    f_o = first_occurrence(bwt)
+    found = {}
+    list_k = []
+    for letter in bwt:
+        if letter in found.keys():
+            found[letter] += 1
+            list_k.append(found[letter])
+        else:
+            found[letter] = 1
+            list_k.append(found[letter])
+    row = 0
+    seq = ""
+    for i in range(len(bwt) - 1):
+        letter = bwt[row]
+        k = list_k[row]
+        next_row = f_o[letter] + k - 1
+        seq += letter
+        row = next_row
+    seq = seq[::-1] + "$"
+
+    return seq
+
+print(inverse_bwt("AC$ATGGGGACTC"))
